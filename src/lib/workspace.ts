@@ -11,6 +11,14 @@ import {
 } from "@/lib/duplicates";
 import type { DeliveryFields, Order, Workspace } from "@/lib/types";
 
+export type ManualOrderInput = {
+  orderNumber: string;
+  buyerUsername: string;
+  itemTitle: string;
+  quantity: string;
+  delivery: DeliveryFields;
+};
+
 function withDerivedState(
   workspace: Omit<Workspace, "groups" | "totals">,
 ): Workspace {
@@ -55,6 +63,96 @@ export function createWorkspaceFromCsv(
     orders,
     excludedOrderNumbers: [],
     reviewedMatchKeys: [],
+  });
+}
+
+export function createWorkspaceFromCsvFiles(
+  files: Array<{ text: string; fileName: string }>,
+): Workspace {
+  if (files.length === 0) {
+    throw new Error("Choose at least one eBay orders CSV.");
+  }
+
+  const parsedFiles = files.map((file) => {
+    try {
+      return createWorkspaceFromCsv(file.text, file.fileName);
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : "The CSV could not be read.";
+      throw new Error(`${file.fileName}: ${message}`);
+    }
+  });
+
+  const seenOrderNumbers = new Set<string>();
+  const repeatedAcrossFiles: string[] = [];
+  const orders: Order[] = [];
+
+  for (const parsed of parsedFiles) {
+    for (const order of parsed.orders) {
+      if (seenOrderNumbers.has(order.orderNumber)) {
+        repeatedAcrossFiles.push(order.orderNumber);
+        continue;
+      }
+      seenOrderNumbers.add(order.orderNumber);
+      orders.push({ ...order, sourceRowIndex: orders.length });
+    }
+  }
+
+  const parseWarnings = parsedFiles.flatMap((parsed) => parsed.parseWarnings);
+  if (repeatedAcrossFiles.length > 0) {
+    const preview = repeatedAcrossFiles.slice(0, 8).join(", ");
+    const remaining = repeatedAcrossFiles.length - 8;
+    parseWarnings.push(
+      `Skipped ${repeatedAcrossFiles.length} repeated order${repeatedAcrossFiles.length === 1 ? "" : "s"} found in more than one file. The first occurrence was kept: ${preview}${remaining > 0 ? ` and ${remaining} more` : ""}.`,
+    );
+  }
+
+  return withDerivedState({
+    fileName:
+      files.length === 1 ? files[0].fileName : `combined-${files.length}-files.csv`,
+    parseWarnings,
+    skippedEmptyOrderRows: parsedFiles.reduce(
+      (total, parsed) => total + parsed.skippedEmptyOrderRows,
+      0,
+    ),
+    orders,
+    excludedOrderNumbers: [],
+    reviewedMatchKeys: [],
+  });
+}
+
+export function addManualOrder(
+  workspace: Workspace | null,
+  input: ManualOrderInput,
+): Workspace {
+  const orderNumber = input.orderNumber.trim();
+  if (!orderNumber) {
+    throw new Error("Order number is required for a manual order.");
+  }
+  if (workspace?.orders.some((order) => order.orderNumber === orderNumber)) {
+    throw new Error(`Order ${orderNumber} already exists. Use Edit to update it.`);
+  }
+
+  const order: Order = {
+    orderNumber,
+    buyerUsername: input.buyerUsername.trim(),
+    salesRecordNumber: "",
+    itemTitle: input.itemTitle.trim(),
+    quantity: input.quantity.trim() || "1",
+    sourceRowIndex: workspace?.orders.length ?? 0,
+    extraRowCount: 0,
+    delivery: Object.fromEntries(
+      Object.entries(input.delivery).map(([key, value]) => [key, value.trim()]),
+    ) as DeliveryFields,
+    raw: {},
+  };
+
+  return withDerivedState({
+    fileName: workspace?.fileName ?? "manual-orders.csv",
+    parseWarnings: workspace?.parseWarnings ?? [],
+    skippedEmptyOrderRows: workspace?.skippedEmptyOrderRows ?? 0,
+    orders: [...(workspace?.orders ?? []), order],
+    excludedOrderNumbers: workspace?.excludedOrderNumbers ?? [],
+    reviewedMatchKeys: workspace?.reviewedMatchKeys ?? [],
   });
 }
 

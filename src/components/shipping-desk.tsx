@@ -7,6 +7,7 @@ import {
   OrderDetailDialog,
 } from "@/components/order-dialogs";
 import { OrdersTable } from "@/components/orders-table";
+import { ManualOrderDialog } from "@/components/manual-order-dialog";
 import { ShippingSettingsPanel } from "@/components/shipping-settings-panel";
 import { StatsBar, type DeskFocus } from "@/components/stats-bar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -32,12 +33,14 @@ import {
 } from "@/lib/shipping-settings";
 import type { DeliveryFields, DuplicateGroup, Order, Workspace } from "@/lib/types";
 import {
+  addManualOrder,
   createWorkspaceFromCsv,
+  createWorkspaceFromCsvFiles,
   setGroupReviewed,
   setOrderExcluded,
   updateOrderDelivery,
 } from "@/lib/workspace";
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, ShieldCheckIcon, SparklesIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type TabValue = "orders" | "duplicates" | "export";
@@ -52,6 +55,7 @@ export function ShippingDesk() {
   );
   const [openOrder, setOpenOrder] = useState<Order | null>(null);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [manualOrderOpen, setManualOrderOpen] = useState(false);
   const [settings, setSettings] = useState<ShippingSettings>(
     DEFAULT_SHIPPING_SETTINGS,
   );
@@ -62,7 +66,7 @@ export function ShippingDesk() {
   const [templateError, setTemplateError] = useState<string | null>(null);
 
   useEffect(() => {
-    setSettings(loadShippingSettings());
+    queueMicrotask(() => setSettings(loadShippingSettings()));
   }, []);
 
   useEffect(() => {
@@ -111,9 +115,9 @@ export function ShippingDesk() {
     return workspace.groups;
   }, [workspace, focus]);
 
-  function loadCsv(text: string, fileName: string) {
+  function loadCsvFiles(files: Array<{ text: string; fileName: string }>) {
     try {
-      const next = createWorkspaceFromCsv(text, fileName);
+      const next = createWorkspaceFromCsvFiles(files);
       setWorkspace(next);
       setError(null);
       setFocus("orders");
@@ -243,14 +247,16 @@ export function ShippingDesk() {
           : null;
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <main className="relative isolate min-h-screen overflow-hidden">
+      <div className="ambient-gradient pointer-events-none absolute -inset-x-[8%] -top-16 -z-10 h-[42rem]" />
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+      <header className="animate-rise flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl space-y-2">
-          <p className="text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase">
-            eBay to shipping Excel
+          <p className="inline-flex items-center gap-2 rounded-full border bg-background/75 px-3 py-1.5 text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase shadow-sm backdrop-blur">
+            <SparklesIcon className="size-3.5 text-primary" /> eBay to shipping Excel
           </p>
-          <h1 className="font-heading text-3xl font-semibold tracking-tight">
-            Shipping desk
+          <h1 className="font-heading text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
+            Shipping, without the spreadsheet chaos.
           </h1>
           <p className="text-sm leading-6 text-muted-foreground sm:text-base">
             Keep one shipping row for each unique Order number, then review
@@ -260,7 +266,7 @@ export function ShippingDesk() {
           </p>
         </div>
         {workspace ? (
-          <div className="rounded-xl border bg-card px-4 py-3 text-sm">
+          <div className="animate-rise rounded-2xl border border-white/60 bg-card/90 px-5 py-4 text-sm shadow-xl shadow-slate-900/5 backdrop-blur">
             <p>
               Export will include{" "}
               <span className="font-semibold tabular-nums">
@@ -293,11 +299,12 @@ export function ShippingDesk() {
 
       <UploadPanel
         fileName={workspace?.fileName}
-        onFileText={loadCsv}
-        onSample={() => loadCsv(SAMPLE_CSV, SAMPLE_FILE_NAME)}
+        onFilesText={loadCsvFiles}
+        onSample={() => loadCsvFiles([{ text: SAMPLE_CSV, fileName: SAMPLE_FILE_NAME }])}
         onDownloadSampleExcel={() => void downloadSampleExcel()}
         sampleExcelDisabled={!templateBuffer || exporting}
         onError={setError}
+        onAddManual={() => setManualOrderOpen(true)}
       />
 
       {templateError || error ? (
@@ -310,14 +317,16 @@ export function ShippingDesk() {
       ) : null}
 
       {!workspace ? (
-        <div className="rounded-xl border bg-muted/20 px-5 py-12 text-center">
+        <div className="animate-rise rounded-2xl border bg-card/70 px-5 py-14 text-center shadow-sm backdrop-blur">
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-700">
+            <ShieldCheckIcon className="size-6" />
+          </div>
           <h2 className="font-heading text-lg font-medium">
             No orders loaded yet
           </h2>
           <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
-            Upload a Seller Hub orders report, or load the sample file to see
-            unique-order totals, extra item rows, and potential duplicate
-            deliveries.
+            Upload a Seller Hub report, add an order manually, or load the sample
+            file. Everything stays in your browser.
           </p>
         </div>
       ) : (
@@ -467,6 +476,35 @@ export function ShippingDesk() {
           if (editingOrder) saveDelivery(editingOrder.orderNumber, delivery);
         }}
       />
-    </div>
+      <ManualOrderDialog
+        open={manualOrderOpen}
+        onOpenChange={setManualOrderOpen}
+        onSave={(input) => {
+          try {
+            setWorkspace((current) => addManualOrder(current, input));
+            setError(null);
+            setFocus("orders");
+            setTab("orders");
+            setManualOrderOpen(false);
+          } catch (caught) {
+            setError(caught instanceof Error ? caught.message : "The order could not be added.");
+          }
+        }}
+      />
+      <footer className="mt-2 flex justify-center border-t border-border/60 pt-5 text-sm text-muted-foreground sm:justify-end">
+        <p>
+          Developed by{" "}
+          <a
+            href="https://ammarahmedecommerce.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-foreground underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary"
+          >
+            Ammar Ahmed
+          </a>
+        </p>
+      </footer>
+      </div>
+    </main>
   );
 }

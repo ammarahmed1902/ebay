@@ -49,13 +49,13 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: oklch(0.985 0.008 240);
+  --foreground: oklch(0.19 0.025 255);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: oklch(0.52 0.16 252);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -64,7 +64,7 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
+  --border: oklch(0.9 0.018 245);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
@@ -122,9 +122,50 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground selection:bg-primary/20;
+    background-image: linear-gradient(to bottom, transparent, oklch(1 0 0 / 0.55));
   }
   html {
     @apply font-sans;
   }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ambient-drift {
+  0% {
+    transform: translate3d(-1.5%, -1%, 0) scale(1);
+    filter: saturate(0.92);
+  }
+  50% {
+    transform: translate3d(1.5%, 1.25%, 0) scale(1.045);
+    filter: saturate(1.06);
+  }
+  100% {
+    transform: translate3d(0.5%, -0.5%, 0) scale(1.02);
+    filter: saturate(0.98);
+  }
+}
+
+.ambient-gradient {
+  background:
+    radial-gradient(circle at 14% 14%, oklch(0.88 0.085 250 / 0.58), transparent 32%),
+    radial-gradient(circle at 82% 8%, oklch(0.91 0.095 155 / 0.52), transparent 29%),
+    radial-gradient(circle at 56% 44%, oklch(0.94 0.06 285 / 0.32), transparent 34%);
+  animation: ambient-drift 22s ease-in-out infinite alternate;
+  transform-origin: center top;
+  will-change: transform, filter;
+}
+
+.animate-rise {
+  animation: rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .ambient-gradient { animation: none; }
+  * { scroll-behavior: auto !important; }
 }

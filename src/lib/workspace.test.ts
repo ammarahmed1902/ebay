@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { buildCsvFromRecords, buildShippingCsv } from "@/lib/csv";
 import { SAMPLE_CSV, SAMPLE_FILE_NAME } from "@/lib/sample";
 import {
+  addManualOrder,
   createWorkspaceFromCsv,
+  createWorkspaceFromCsvFiles,
   exportWorkspace,
   setGroupReviewed,
   setOrderExcluded,
@@ -72,6 +74,35 @@ function deliveryFrom(
 }
 
 describe("order grouping and totals", () => {
+  it("combines multiple CSV files and keeps the first occurrence of cross-file orders", () => {
+    const workspace = createWorkspaceFromCsvFiles([
+      {
+        fileName: "first.csv",
+        text: csv([
+          { "Order number": "MULTI-1", "Post to name": "First version" },
+          { "Order number": "MULTI-2" },
+        ]),
+      },
+      {
+        fileName: "second.csv",
+        text: csv([
+          { "Order number": "MULTI-1", "Post to name": "Second version" },
+          { "Order number": "MULTI-3" },
+        ]),
+      },
+    ]);
+
+    expect(workspace.fileName).toBe("combined-2-files.csv");
+    expect(workspace.orders.map((order) => order.orderNumber)).toEqual([
+      "MULTI-1",
+      "MULTI-2",
+      "MULTI-3",
+    ]);
+    expect(workspace.orders[0]?.delivery.postToName).toBe("First version");
+    expect(workspace.parseWarnings.join(" ")).toMatch(/MULTI-1/);
+    expect(workspace.totals.includedExportOrders).toBe(3);
+  });
+
   it("counts unique orders and repeated item rows without inflating orders", () => {
     const workspace = createWorkspaceFromCsv(
       csv([
@@ -266,6 +297,30 @@ describe("duplicate delivery detection", () => {
 });
 
 describe("edits, review, and export", () => {
+  it("creates a workspace from one manual order and rejects duplicate order numbers", () => {
+    const input = {
+      orderNumber: "MAN-1",
+      buyerUsername: "manual_buyer",
+      itemTitle: "Manual item",
+      quantity: "1",
+      delivery: {
+        postToName: "Ava Reed",
+        postToPhone: "07700 900333",
+        postToAddress1: "3 Market Road",
+        postToAddress2: "",
+        postToCity: "Leeds",
+        postToCounty: "West Yorkshire",
+        postToPostcode: "LS1 1AA",
+        postToCountry: "United Kingdom",
+      },
+    };
+    const workspace = addManualOrder(null, input);
+    expect(workspace.fileName).toBe("manual-orders.csv");
+    expect(workspace.orders[0]?.orderNumber).toBe("MAN-1");
+    expect(workspace.totals.includedExportOrders).toBe(1);
+    expect(() => addManualOrder(workspace, input)).toThrow(/already exists/i);
+  });
+
   it("recalculates duplicate counts and clears review when compared details change", () => {
     let workspace = createWorkspaceFromCsv(
       csv([
@@ -355,6 +410,29 @@ describe("edits, review, and export", () => {
 });
 
 describe("real-world eBay CSV imports", () => {
+  it("ignores eBay report footer rows instead of treating them as orders", () => {
+    const text = [
+      "Order number,Buyer username,Post to name,Post to phone,Post to address 1,Post to address 2,Post to city,Post to county,Post to postcode,Post to country",
+      "04-15250-08826,jacgeo-2000,Toby Roberts,07700 900111,12 Maple Street,,York,North Yorkshire,YO1 7HH,United Kingdom",
+      "record(s) downloaded,,,,,,,,,",
+      "Seller ID : caledonian-youth,,,,,,,,,",
+      "24-15229-61546,mowl_to,Tom Mowlem,07700 900222,9 King Street,,Leeds,West Yorkshire,LS1 1BA,United Kingdom",
+      "83 record(s) downloaded,,,,,,,,,",
+      "Seller ID: discounted-shop-777,,,,,,,,,",
+    ].join("\n");
+
+    const workspace = createWorkspaceFromCsv(text, "seller-report.csv");
+    expect(workspace.orders.map((order) => order.orderNumber)).toEqual([
+      "04-15250-08826",
+      "24-15229-61546",
+    ]);
+    expect(workspace.totals.uniqueOrders).toBe(2);
+    expect(exportWorkspace(workspace).rows.map((row) => row.Reference)).toEqual([
+      "04-15250-08826",
+      "24-15229-61546",
+    ]);
+  });
+
   it("uses Sales record number when Order number cells are blank", () => {
     const text = [
       "Sales record number,Order number,Buyer username,Post to name,Post to phone,Post to address 1,Post to address 2,Post to city,Post to county,Post to postcode,Post to country",

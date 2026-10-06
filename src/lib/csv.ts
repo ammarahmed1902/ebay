@@ -194,6 +194,14 @@ function isHeaderLikeValue(value: string, field: LogicalField): boolean {
   return fieldForHeader(value) === field;
 }
 
+function isReportMetadataIdentity(value: string): boolean {
+  const normalized = value.trim().replace(/\s+/g, " ");
+  return (
+    /^(?:\d+\s+)?records?(?:\s*\(s\))?\s+downloaded$/i.test(normalized) ||
+    /^seller\s*id\s*:/i.test(normalized)
+  );
+}
+
 export type ParsedCsv = {
   rows: Record<string, string>[];
   headers: string[];
@@ -336,6 +344,7 @@ export function groupFirstRowPerOrder(
       skippedEmptyOrderRows += 1;
       return;
     }
+    if (isReportMetadataIdentity(mapped.orderNumber)) return;
 
     const existing = byNumber.get(mapped.orderNumber);
     if (existing) {

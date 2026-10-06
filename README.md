@@ -38,8 +38,8 @@ After deploy, smoke-test in production: load a sample CSV, open duplicate review
 
 ## What it does
 
-1. Reads a Seller Hub orders report (CSV).
-2. Groups CSV rows by **Order number** (or **Sales record number** when Order number is blank) and keeps the **first row** of each order for shipping. Extra item-detail rows are counted as repeats, not extra orders.
+1. Reads one or multiple Seller Hub orders reports (CSV/TSV) selected or dropped together.
+2. Combines the files, groups rows by **Order number** (or **Sales record number** when Order number is blank), and keeps the **first row** of each order for shipping. Extra item-detail rows are counted as repeats, not extra orders. When an Order number occurs in more than one file, the first occurrence is kept and a visible warning is shown.
 3. Shows totals for unique orders, repeated rows, and potential duplicate deliveries.
 4. Compares recipient details across different Order numbers and lists possible duplicate delivery groups in a dedicated tab.
 5. Lets you open an order, edit delivery details, mark a group as **Reviewed — keep separate**, and explicitly exclude orders from export.

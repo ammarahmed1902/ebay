@@ -3,60 +3,68 @@
 import { SampleButton } from "@/components/sample-button";
 import { Button } from "@/components/ui/button";
 import { decodeCsvBytes } from "@/lib/csv";
-import { FileSpreadsheetIcon, UploadIcon } from "lucide-react";
+import { FileSpreadsheetIcon, PackagePlusIcon, UploadIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 type UploadPanelProps = {
   fileName?: string;
-  onFileText: (text: string, fileName: string) => void;
+  onFilesText: (files: Array<{ text: string; fileName: string }>) => void;
   onSample: () => void;
   onDownloadSampleExcel?: () => void;
   sampleExcelDisabled?: boolean;
   onError: (message: string) => void;
+  onAddManual: () => void;
 };
 
 export function UploadPanel({
   fileName,
-  onFileText,
+  onFilesText,
   onSample,
   onDownloadSampleExcel,
   sampleExcelDisabled = false,
   onError,
+  onAddManual,
 }: UploadPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
-  function readFile(file: File) {
+  function isAcceptedFile(file: File) {
     const name = file.name.toLowerCase();
-    if (
-      !name.endsWith(".csv") &&
-      !name.endsWith(".tsv") &&
-      !name.endsWith(".txt") &&
-      file.type !== "text/csv" &&
-      file.type !== "text/tab-separated-values"
-    ) {
-      onError("Please choose a .csv file from eBay Seller Hub.");
+    return (
+      name.endsWith(".csv") ||
+      name.endsWith(".tsv") ||
+      name.endsWith(".txt") ||
+      file.type === "text/csv" ||
+      file.type === "text/tab-separated-values"
+    );
+  }
+
+  async function readFiles(files: File[]) {
+    if (files.length === 0) return;
+    const invalid = files.find((file) => !isAcceptedFile(file));
+    if (invalid) {
+      onError(`${invalid.name} is not a CSV, TSV, or text file.`);
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const buffer = reader.result;
-      if (!(buffer instanceof ArrayBuffer)) {
-        onError("The file could not be read.");
-        return;
-      }
-      onFileText(decodeCsvBytes(buffer), file.name);
-    };
-    reader.onerror = () => onError("The file could not be read.");
-    reader.readAsArrayBuffer(file);
+    try {
+      const decoded = await Promise.all(
+        files.map(async (file) => ({
+          text: decodeCsvBytes(await file.arrayBuffer()),
+          fileName: file.name,
+        })),
+      );
+      onFilesText(decoded);
+    } catch {
+      onError("One or more files could not be read.");
+    }
   }
 
   return (
     <div
-      className={`rounded-xl border border-dashed p-5 transition-colors ${
+      className={`group rounded-2xl border border-dashed p-5 shadow-sm transition-all duration-300 ${
         dragging
-          ? "border-foreground bg-muted/70"
-          : "border-border bg-card"
+          ? "scale-[1.01] border-primary bg-primary/5 shadow-lg"
+          : "border-border/80 bg-card/90 hover:border-primary/40 hover:shadow-md"
       }`}
       onDragOver={(event) => {
         event.preventDefault();
@@ -66,8 +74,7 @@ export function UploadPanel({
       onDrop={(event) => {
         event.preventDefault();
         setDragging(false);
-        const file = event.dataTransfer.files[0];
-        if (file) readFile(file);
+        void readFiles(Array.from(event.dataTransfer.files));
       }}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -77,12 +84,11 @@ export function UploadPanel({
           </div>
           <div>
             <p className="font-medium">
-              {fileName ? fileName : "Drop an eBay orders CSV"}
+              {fileName ? fileName : "Drop one or more eBay orders CSVs"}
             </p>
             <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-              Seller Hub reports can list several item rows for one Order
-              number. This desk keeps the first row of each order for shipping,
-              then checks for matching recipients across different orders.
+              Select several Seller Hub reports together. Their unique orders
+              are combined into one worksheet using the unchanged shipping template.
             </p>
           </div>
         </div>
@@ -90,13 +96,13 @@ export function UploadPanel({
           <input
             ref={inputRef}
             type="file"
+            multiple
             accept=".csv,.tsv,.txt,text/csv"
             className="hidden"
             aria-hidden="true"
             tabIndex={-1}
             onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) readFile(file);
+              void readFiles(Array.from(event.target.files ?? []));
               event.target.value = "";
             }}
           />
@@ -105,7 +111,11 @@ export function UploadPanel({
             onClick={() => inputRef.current?.click()}
           >
             <UploadIcon data-icon="inline-start" />
-            Choose CSV
+            Choose CSV files
+          </Button>
+          <Button type="button" variant="secondary" onClick={onAddManual}>
+            <PackagePlusIcon data-icon="inline-start" />
+            Add manually
           </Button>
           <SampleButton onClick={onSample} />
           {onDownloadSampleExcel ? (
