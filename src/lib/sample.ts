@@ -86,7 +86,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "2001",
     "Order number": "ORD-2001",
-    "Buyer username": "same_buyer_a",
+    "Buyer username": "priya_shah",
     "Post to name": "Priya Shah",
     "Post to phone": "020 7946 0958",
     "Post to address 1": "8 Crown Court",
@@ -101,7 +101,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "2002",
     "Order number": "ORD-2002",
-    "Buyer username": "same_buyer_b",
+    "Buyer username": "priya_shah",
     "Post to name": "Priya Shah",
     "Post to phone": "020 7946 0958",
     "Post to address 1": "8 Crown Court",
@@ -116,7 +116,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "3001",
     "Order number": "ORD-3001",
-    "Buyer username": "line2_one",
+    "Buyer username": "morgan_ellis",
     "Post to name": "Morgan Ellis",
     "Post to phone": "0117 496 0234",
     "Post to address 1": "19 Queen Square",
@@ -131,7 +131,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "3002",
     "Order number": "ORD-3002",
-    "Buyer username": "line2_two",
+    "Buyer username": "morgan_ellis",
     "Post to name": "Morgan Ellis",
     "Post to phone": "0117 496 0234",
     "Post to address 1": "19 Queen Square",
@@ -146,7 +146,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "4001",
     "Order number": "ORD-4001",
-    "Buyer username": "triple_a",
+    "Buyer username": "chris_adeyemi",
     "Post to name": "Chris Adeyemi",
     "Post to phone": "0131 496 0199",
     "Post to address 1": "5 Calton Hill",
@@ -161,7 +161,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "4002",
     "Order number": "ORD-4002",
-    "Buyer username": "triple_b",
+    "Buyer username": "chris_adeyemi",
     "Post to name": "Chris Adeyemi",
     "Post to phone": "0131 496 0199",
     "Post to address 1": "5 Calton Hill",
@@ -176,7 +176,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "4003",
     "Order number": "ORD-4003",
-    "Buyer username": "triple_c",
+    "Buyer username": "chris_adeyemi",
     "Post to name": "Chris Adeyemi",
     "Post to phone": "0131 496 0199",
     "Post to address 1": "5 Calton Hill",
@@ -191,7 +191,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "5001",
     "Order number": "ORD-5001",
-    "Buyer username": "blank_line2",
+    "Buyer username": "samira_noor",
     "Post to name": "Samira Noor",
     "Post to phone": "0121 496 0777",
     "Post to address 1": "30 Corporation Street",
@@ -206,7 +206,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "5002",
     "Order number": "ORD-5002",
-    "Buyer username": "filled_line2",
+    "Buyer username": "samira_noor",
     "Post to name": "Samira Noor",
     "Post to phone": "0121 496 0777",
     "Post to address 1": "30 Corporation Street",
@@ -281,7 +281,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "8001",
     "Order number": "ORD-8001",
-    "Buyer username": "format_a",
+    "Buyer username": "casey_rowe",
     "Post to name": "  Casey  Rowe ",
     "Post to phone": "(07700) 900-888",
     "Post to address 1": "2  Mill   Lane",
@@ -296,7 +296,7 @@ const SAMPLE_ROWS: SampleRow[] = [
   row({
     "Sales record number": "8002",
     "Order number": "ORD-8002",
-    "Buyer username": "format_b",
+    "Buyer username": "casey_rowe",
     "Post to name": "casey rowe",
     "Post to phone": "07700 900888",
     "Post to address 1": "2 Mill Lane",

@@ -2,6 +2,7 @@ import {
   buildShippingCsv,
   csvHasOrderIdentity,
   groupFirstRowPerOrder,
+  missingRequiredBuyerColumns,
   parseCsvText,
 } from "@/lib/csv";
 import {
@@ -46,6 +47,13 @@ export function createWorkspaceFromCsv(
       preview
         ? `Could not find an Order number or Sales record number column. Columns found: ${preview}.`
         : "This does not look like an eBay orders CSV. Export the Seller Hub orders report and try again.",
+    );
+  }
+
+  const missingBuyerColumns = missingRequiredBuyerColumns(parsed.headers);
+  if (missingBuyerColumns.length > 0) {
+    throw new Error(
+      `Missing required buyer columns: ${missingBuyerColumns.join(", ")}. Export a complete Seller Hub orders report and try again.`,
     );
   }
 

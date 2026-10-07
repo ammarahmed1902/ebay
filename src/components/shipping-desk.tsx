@@ -260,9 +260,9 @@ export function ShippingDesk() {
           </h1>
           <p className="text-sm leading-6 text-muted-foreground sm:text-base">
             Keep one shipping row for each unique Order number, then review
-            different orders that share the same recipient details. Matching
-            deliveries are warnings for you to check — they are never merged,
-            deleted, or combined automatically.
+            different orders that share the same buyer username, name, phone,
+            address line 1, and postcode. Matches are warnings for you to check
+            — they are never merged, deleted, or combined automatically.
           </p>
         </div>
         {workspace ? (

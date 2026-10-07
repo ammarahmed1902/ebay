@@ -327,6 +327,28 @@ export function csvHasOrderIdentity(headers: string[]): boolean {
   });
 }
 
+const REQUIRED_BUYER_COLUMNS: Array<{
+  field: LogicalField;
+  label: string;
+}> = [
+  { field: "buyerUsername", label: "Buyer username" },
+  { field: "postToName", label: "Post to name" },
+  { field: "postToPhone", label: "Post to phone" },
+  { field: "postToAddress1", label: "Post to address 1" },
+  { field: "postToPostcode", label: "Post to postcode" },
+];
+
+export function missingRequiredBuyerColumns(headers: string[]): string[] {
+  const present = new Set(
+    headers
+      .map(fieldForHeader)
+      .filter((field): field is LogicalField => field !== null),
+  );
+  return REQUIRED_BUYER_COLUMNS.filter(({ field }) => !present.has(field)).map(
+    ({ label }) => label,
+  );
+}
+
 export function csvHasOrderNumber(headers: string[]): boolean {
   return csvHasOrderIdentity(headers);
 }

@@ -31,7 +31,7 @@ const STATS: Array<{
   {
     key: "duplicates",
     label: "Potential duplicate delivery groups",
-    hint: "Different orders with matching recipient details",
+    hint: "Same buyer username, name, phone, address 1, and postcode",
     value: (totals) => totals.duplicateGroups,
   },
   {

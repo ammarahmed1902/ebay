@@ -195,8 +195,8 @@ describe("excel export structure", () => {
 
     const workspace = createWorkspaceFromCsv(
       [
-        "Order number,Post to name,Post to phone,Post to address 1,Post to city,Post to county,Post to postcode,Post to country",
-        "A-1,One,07700900111,1 Street,York,N Yorkshire,YO1 7HH,United Kingdom",
+        "Order number,Buyer username,Post to name,Post to phone,Post to address 1,Post to city,Post to county,Post to postcode,Post to country",
+        "A-1,buyer-one,One,07700900111,1 Street,York,N Yorkshire,YO1 7HH,United Kingdom",
       ].join("\n"),
       "orders.csv",
     );
@@ -256,8 +256,8 @@ describe("excel export structure", () => {
   it("blocks export when the template is missing or its layout cannot be preserved", async () => {
     const orders = createWorkspaceFromCsv(
       [
-        "Order number,Post to name,Post to phone,Post to address 1,Post to city,Post to county,Post to postcode,Post to country",
-        "A-1,One,07700900111,1 Street,York,N Yorkshire,YO1 7HH,United Kingdom",
+        "Order number,Buyer username,Post to name,Post to phone,Post to address 1,Post to city,Post to county,Post to postcode,Post to country",
+        "A-1,buyer-one,One,07700900111,1 Street,York,N Yorkshire,YO1 7HH,United Kingdom",
       ].join("\n"),
       "orders.csv",
     ).orders;

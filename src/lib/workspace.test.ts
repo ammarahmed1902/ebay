@@ -47,7 +47,7 @@ function csv(
 ) {
   const records = rows.map((row, index) => ({
     "Order number": row["Order number"],
-    "Buyer username": row["Buyer username"] ?? `buyer_${index + 1}`,
+    "Buyer username": row["Buyer username"] ?? "shared_buyer",
     "Post to name": row["Post to name"] ?? BASE_DELIVERY["Post to name"],
     "Post to phone": row["Post to phone"] ?? BASE_DELIVERY["Post to phone"],
     "Post to address 1":
@@ -74,6 +74,23 @@ function deliveryFrom(
 }
 
 describe("order grouping and totals", () => {
+  it("rejects uploads missing essential buyer and delivery columns", () => {
+    const text = buildCsvFromRecords(
+      ["Order number", "Buyer username", "Post to name"],
+      [
+        {
+          "Order number": "MISSING-1",
+          "Buyer username": "buyer",
+          "Post to name": "Buyer Name",
+        },
+      ],
+    );
+
+    expect(() => createWorkspaceFromCsv(text, "incomplete.csv")).toThrow(
+      "Missing required buyer columns: Post to phone, Post to address 1, Post to postcode.",
+    );
+  });
+
   it("combines multiple CSV files and keeps the first occurrence of cross-file orders", () => {
     const workspace = createWorkspaceFromCsvFiles([
       {
@@ -138,11 +155,11 @@ describe("order grouping and totals", () => {
 });
 
 describe("duplicate delivery detection", () => {
-  it("groups different Order numbers with identical delivery details", () => {
+  it("groups different Order numbers when the five buyer fields match", () => {
     const workspace = createWorkspaceFromCsv(
       csv([
-        { "Order number": "DUP-1", "Buyer username": "one" },
-        { "Order number": "DUP-2", "Buyer username": "two" },
+        { "Order number": "DUP-1", "Buyer username": "same-buyer" },
+        { "Order number": "DUP-2", "Buyer username": "same-buyer" },
       ]),
       "orders.csv",
     );
@@ -218,13 +235,11 @@ describe("duplicate delivery detection", () => {
   });
 
   it.each([
+    ["Buyer username", "different-buyer"],
     ["Post to name", "Different Name"],
     ["Post to phone", "07700 900999"],
     ["Post to address 1", "99 Other Road"],
-    ["Post to city", "Cambridge"],
-    ["Post to county", "Cambridgeshire"],
     ["Post to postcode", "CB1 1AA"],
-    ["Post to country", "France"],
   ] as const)("does not match when %s differs", (field, value) => {
     const workspace = createWorkspaceFromCsv(
       csv([
@@ -235,6 +250,22 @@ describe("duplicate delivery detection", () => {
     );
     expect(workspace.groups).toHaveLength(0);
     expect(workspace.totals.duplicateGroups).toBe(0);
+  });
+
+  it("still matches when city, county, or country differs", () => {
+    const workspace = createWorkspaceFromCsv(
+      csv([
+        { "Order number": "PLACE-1" },
+        {
+          "Order number": "PLACE-2",
+          "Post to city": "Cambridge",
+          "Post to county": "Cambridgeshire",
+          "Post to country": "France",
+        },
+      ]),
+      "orders.csv",
+    );
+    expect(workspace.groups).toHaveLength(1);
   });
 
   it("does not create groups when required delivery fields are missing", () => {

@@ -51,13 +51,11 @@ Use **Shipping settings** to adjust sender and package defaults (prefilled from 
 
 After first-row-per-order grouping, orders match when all of these fields are the same:
 
+- Buyer username
 - Post to name
 - Post to phone
 - Post to address 1
-- Post to city
-- Post to county
 - Post to postcode
-- Post to country
 
 `Post to address 2` is not part of the match key. If it differs — including blank versus filled, or eBay codes such as `W/N` — the group is still flagged and those cells are highlighted.
 

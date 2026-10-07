@@ -4,7 +4,7 @@ import type {
   Order,
   Totals,
 } from "@/lib/types";
-import { address2Key, deliveryMatchKey } from "@/lib/normalize";
+import { address2Key, orderDuplicateMatchKey } from "@/lib/normalize";
 
 function classifyMembers(orders: Order[]): {
   classification: DuplicateClassification;
@@ -59,7 +59,7 @@ export function detectDuplicateGroups(orders: Order[]): DuplicateGroup[] {
   const buckets = new Map<string, Order[]>();
 
   for (const order of orders) {
-    const key = deliveryMatchKey(order.delivery);
+    const key = orderDuplicateMatchKey(order);
     if (!key) continue;
     const bucket = buckets.get(key);
     if (bucket) {
@@ -129,14 +129,14 @@ export function reconcileReviewedMatchKeys(options: {
   const previousKeyByOrder = new Map(
     options.previousOrders.map((order) => [
       order.orderNumber,
-      deliveryMatchKey(order.delivery),
+      orderDuplicateMatchKey(order),
     ]),
   );
 
   const invalidated = new Set<string>();
   for (const order of options.nextOrders) {
     const previousKey = previousKeyByOrder.get(order.orderNumber);
-    const nextKey = deliveryMatchKey(order.delivery);
+    const nextKey = orderDuplicateMatchKey(order);
     if (previousKey && previousKey !== nextKey) {
       invalidated.add(previousKey);
     }

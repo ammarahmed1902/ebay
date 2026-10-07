@@ -1,4 +1,4 @@
-import type { DeliveryFields } from "@/lib/types";
+import type { Order } from "@/lib/types";
 
 const COUNTRY_ALIASES: Record<string, string> = {
   "united kingdom": "GB",
@@ -66,16 +66,6 @@ const COUNTRY_ALIASES: Record<string, string> = {
 
 const UK_POSTCODE_COUNTRIES = new Set(["GB", "IM", "JE", "GG"]);
 
-const REQUIRED_DELIVERY_FIELDS: (keyof DeliveryFields)[] = [
-  "postToName",
-  "postToPhone",
-  "postToAddress1",
-  "postToCity",
-  "postToCounty",
-  "postToPostcode",
-  "postToCountry",
-];
-
 export function normalizeText(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
@@ -103,25 +93,27 @@ export function normalizePhone(value: string): string {
   return value.trim().replace(/[^\d+]/g, "");
 }
 
-export function hasRequiredDeliveryFields(delivery: DeliveryFields): boolean {
-  return REQUIRED_DELIVERY_FIELDS.every((field) => delivery[field].trim() !== "");
-}
-
 export function address2Key(value: string): string {
   return normalizeText(value);
 }
 
-export function deliveryMatchKey(delivery: DeliveryFields): string | null {
-  if (!hasRequiredDeliveryFields(delivery)) return null;
+export function orderDuplicateMatchKey(order: Order): string | null {
+  const { delivery, buyerUsername } = order;
+  if (
+    !buyerUsername.trim() ||
+    !delivery.postToName.trim() ||
+    !delivery.postToPhone.trim() ||
+    !delivery.postToAddress1.trim() ||
+    !delivery.postToPostcode.trim()
+  ) {
+    return null;
+  }
 
-  const country = normalizeCountry(delivery.postToCountry);
   return [
+    normalizeText(buyerUsername),
     normalizeText(delivery.postToName),
     normalizePhone(delivery.postToPhone),
     normalizeText(delivery.postToAddress1),
-    normalizeText(delivery.postToCity),
-    normalizeText(delivery.postToCounty),
-    normalizePostcode(delivery.postToPostcode, country),
-    country,
+    normalizeUkPostcode(delivery.postToPostcode),
   ].join("\u001f");
 }

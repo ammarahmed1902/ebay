@@ -3,18 +3,18 @@ Sales record number,Order number,Buyer username,Post to name,Post to phone,Post 
 1002,ORD-1002,bob_shopper,Bob Keene,0161 496 0100,44 Canal Walk,Apartment 3,Manchester,Greater Manchester,M1 1AE,United Kingdom,Blue notebook,1
 1002,ORD-1002,bob_shopper,Bob Keene,0161 496 0100,44 Canal Walk,Apartment 3,Manchester,Greater Manchester,M1 1AE,United Kingdom,Gel pen set,2
 1002,ORD-1002,bob_shopper,Bob Keene,0161 496 0100,44 Canal Walk,Apartment 3,Manchester,Greater Manchester,M1 1AE,United Kingdom,Desk blotter,1
-2001,ORD-2001,same_buyer_a,Priya Shah,020 7946 0958,8 Crown Court,W/N,London,Greater London,WC2N 5DU,United Kingdom,Print: river morning,1
-2002,ORD-2002,same_buyer_b,Priya Shah,020 7946 0958,8 Crown Court,W/N,London,Greater London,WC2N 5DU,United Kingdom,Print: harbour dusk,1
-3001,ORD-3001,line2_one,Morgan Ellis,0117 496 0234,19 Queen Square,Flat 2,Bristol,Bristol,BS1 4NH,United Kingdom,Wool scarf,1
-3002,ORD-3002,line2_two,Morgan Ellis,0117 496 0234,19 Queen Square,COM24,Bristol,Bristol,BS1 4NH,United Kingdom,Wool gloves,1
-4001,ORD-4001,triple_a,Chris Adeyemi,0131 496 0199,5 Calton Hill,,Edinburgh,Midlothian,EH1 3BJ,United Kingdom,Tea tin,1
-4002,ORD-4002,triple_b,Chris Adeyemi,0131 496 0199,5 Calton Hill,,Edinburgh,Midlothian,EH1 3BJ,United Kingdom,Honey jar,1
-4003,ORD-4003,triple_c,Chris Adeyemi,0131 496 0199,5 Calton Hill,,Edinburgh,Midlothian,EH1 3BJ,United Kingdom,Shortbread tin,1
-5001,ORD-5001,blank_line2,Samira Noor,0121 496 0777,30 Corporation Street,,Birmingham,West Midlands,B4 6TB,United Kingdom,Tote bag,1
-5002,ORD-5002,filled_line2,Samira Noor,0121 496 0777,30 Corporation Street,W/N,Birmingham,West Midlands,B4 6TB,United Kingdom,Canvas pouch,1
+2001,ORD-2001,priya_shah,Priya Shah,020 7946 0958,8 Crown Court,W/N,London,Greater London,WC2N 5DU,United Kingdom,Print: river morning,1
+2002,ORD-2002,priya_shah,Priya Shah,020 7946 0958,8 Crown Court,W/N,London,Greater London,WC2N 5DU,United Kingdom,Print: harbour dusk,1
+3001,ORD-3001,morgan_ellis,Morgan Ellis,0117 496 0234,19 Queen Square,Flat 2,Bristol,Bristol,BS1 4NH,United Kingdom,Wool scarf,1
+3002,ORD-3002,morgan_ellis,Morgan Ellis,0117 496 0234,19 Queen Square,COM24,Bristol,Bristol,BS1 4NH,United Kingdom,Wool gloves,1
+4001,ORD-4001,chris_adeyemi,Chris Adeyemi,0131 496 0199,5 Calton Hill,,Edinburgh,Midlothian,EH1 3BJ,United Kingdom,Tea tin,1
+4002,ORD-4002,chris_adeyemi,Chris Adeyemi,0131 496 0199,5 Calton Hill,,Edinburgh,Midlothian,EH1 3BJ,United Kingdom,Honey jar,1
+4003,ORD-4003,chris_adeyemi,Chris Adeyemi,0131 496 0199,5 Calton Hill,,Edinburgh,Midlothian,EH1 3BJ,United Kingdom,Shortbread tin,1
+5001,ORD-5001,samira_noor,Samira Noor,0121 496 0777,30 Corporation Street,,Birmingham,West Midlands,B4 6TB,United Kingdom,Tote bag,1
+5002,ORD-5002,samira_noor,Samira Noor,0121 496 0777,30 Corporation Street,W/N,Birmingham,West Midlands,B4 6TB,United Kingdom,Canvas pouch,1
 6001,ORD-6001,incomplete_a,No Phone Listed,,1 Missing Fields Lane,,Leeds,West Yorkshire,LS1 1BA,United Kingdom,Postcard pack,1
 6002,ORD-6002,incomplete_b,No Phone Listed,,1 Missing Fields Lane,,Leeds,West Yorkshire,LS1 1BA,United Kingdom,Stamp set,1
 7001,ORD-7001,name_a,Jordan Blake,0191 496 0123,9 Grey Street,,Newcastle,Tyne and Wear,NE1 6AE,United Kingdom,Cap,1
 7002,ORD-7002,name_b,Alex Blake,0191 496 0123,9 Grey Street,,Newcastle,Tyne and Wear,NE1 6AE,United Kingdom,Beanie,1
-8001,ORD-8001,format_a,  Casey  Rowe ,(07700) 900-888,2  Mill   Lane,Unit 4,Bath,Somerset,ba1 1ne,uk,Soap bar,1
-8002,ORD-8002,format_b,casey rowe,07700 900888,2 Mill Lane,Unit 4,BATH,somerset,BA1 1NE,United Kingdom,Lip balm,1
+8001,ORD-8001,casey_rowe,  Casey  Rowe ,(07700) 900-888,2  Mill   Lane,Unit 4,Bath,Somerset,ba1 1ne,uk,Soap bar,1
+8002,ORD-8002,casey_rowe,casey rowe,07700 900888,2 Mill Lane,Unit 4,BATH,somerset,BA1 1NE,United Kingdom,Lip balm,1
